@@ -34,3 +34,7 @@ build/
 
 ### Custom ###
 .env
+.m2/
+
+# Postgresql Data
+.postgresql_data/

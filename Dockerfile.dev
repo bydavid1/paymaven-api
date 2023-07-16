@@ -1,24 +1,17 @@
-# Utiliza una imagen base con soporte para Java y Maven
-FROM maven:3.8.3-openjdk-17-slim AS build
+# Establece la imagen base utilizando una distribución de OpenJDK de Eclipse Temurin con Java 11
+FROM eclipse-temurin:latest
 
-# Establece el directorio de trabajo dentro del contenedor
-WORKDIR /app
+# Actualiza los paquetes del sistema operativo dentro del contenedor
+RUN apt-get update && apt-get -y upgrade
 
-# Copia el archivo pom.xml y el archivo de configuración
-COPY pom.xml .
-COPY src ./src
+# Instala las herramientas inotify-tools y dos2unix en el contenedor
+RUN apt-get install -y inotify-tools dos2unix
 
-# Construye el proyecto con Maven
-RUN mvn package -DskipTests
+# Establece la variable de entorno HOME con el directorio /app
+ENV HOME=/app
 
-# Segunda etapa para la imagen final
-FROM openjdk:17-jdk-alpine
+# Crea el directorio /app dentro del contenedor
+RUN mkdir -p $HOME
 
-# Copia el artefacto construido en la etapa anterior
-COPY --from=build /app/target/paymaven-0.0.1-SNAPSHOT.jar app.jar
-
-# Expone el puerto en el que la aplicación escucha las solicitudes
-EXPOSE 8080
-
-# Comando para ejecutar la aplicación
-CMD ["java", "-jar", "app.jar"]
+# Establece el directorio de trabajo dentro del contenedor como /app
+WORKDIR $HOME
